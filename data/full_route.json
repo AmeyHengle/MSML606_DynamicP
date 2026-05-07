@@ -1,0 +1,923 @@
+{
+  "metadata": {
+    "description": "100-stop Amazon last-mile delivery dataset, DC/MD metro area",
+    "source": "Adapted from Amazon Last Mile Routing Research Challenge spatial structure",
+    "dataset_url": "https://huggingface.co/datasets/amazon-science/last-mile-routing-research-challenge",
+    "region": "College Park / Hyattsville / DC metro, MD",
+    "depot": "Amazon DSP Station, Beltsville, MD",
+    "num_stops": 100,
+    "clusters": [
+      "Beltsville / Laurel",
+      "College Park",
+      "Greenbelt",
+      "Hyattsville",
+      "Lanham / Seabrook",
+      "Landover / Cheverly",
+      "Riverdale / Bladensburg",
+      "Capitol Heights / Seat Pleasant"
+    ],
+    "seed": 2026
+  },
+  "stops": [
+    {
+      "id": 0,
+      "name": "Depot",
+      "address": "Amazon DSP Station \u2014 4400 Powder Mill Rd, Beltsville, MD 20705",
+      "lat": 39.0197,
+      "lng": -76.9228,
+      "cluster": "Depot",
+      "type": "depot"
+    },
+    {
+      "id": 1,
+      "name": "Stop 1",
+      "address": "8485 Powder Mill Blvd, Beltsville, MD 20705",
+      "lat": 39.042793,
+      "lng": -76.906154,
+      "cluster": "Beltsville / Laurel",
+      "type": "commercial"
+    },
+    {
+      "id": 2,
+      "name": "Stop 2",
+      "address": "6991 Sheridan Pl, Beltsville, MD 20705",
+      "lat": 39.044903,
+      "lng": -76.924412,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 3,
+      "name": "Stop 3",
+      "address": "9709 College Dr, Beltsville, MD 20705",
+      "lat": 39.033123,
+      "lng": -76.933666,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 4,
+      "name": "Stop 4",
+      "address": "1706 College Ave, Beltsville, MD 20705",
+      "lat": 39.041474,
+      "lng": -76.910603,
+      "cluster": "Beltsville / Laurel",
+      "type": "commercial"
+    },
+    {
+      "id": 5,
+      "name": "Stop 5",
+      "address": "3544 Columbia St, Beltsville, MD 20705",
+      "lat": 39.029623,
+      "lng": -76.930234,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 6,
+      "name": "Stop 6",
+      "address": "6266 Riggs Way, Beltsville, MD 20705",
+      "lat": 39.043453,
+      "lng": -76.915071,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 7,
+      "name": "Stop 7",
+      "address": "8915 Adams St, Beltsville, MD 20705",
+      "lat": 39.034344,
+      "lng": -76.9197,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 8,
+      "name": "Stop 8",
+      "address": "9560 Adams Ave, Beltsville, MD 20705",
+      "lat": 39.045021,
+      "lng": -76.927024,
+      "cluster": "Beltsville / Laurel",
+      "type": "commercial"
+    },
+    {
+      "id": 9,
+      "name": "Stop 9",
+      "address": "1585 Columbia Pl, Beltsville, MD 20705",
+      "lat": 39.028203,
+      "lng": -76.906023,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 10,
+      "name": "Stop 10",
+      "address": "9933 Varnum Ln, Beltsville, MD 20705",
+      "lat": 39.041365,
+      "lng": -76.923579,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 11,
+      "name": "Stop 11",
+      "address": "9340 Greenbelt Way, Beltsville, MD 20705",
+      "lat": 39.017845,
+      "lng": -76.918274,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 12,
+      "name": "Stop 12",
+      "address": "2213 Buchanan Ave, Beltsville, MD 20705",
+      "lat": 39.041337,
+      "lng": -76.913755,
+      "cluster": "Beltsville / Laurel",
+      "type": "commercial"
+    },
+    {
+      "id": 13,
+      "name": "Stop 13",
+      "address": "7135 Greenbelt Rd, Beltsville, MD 20705",
+      "lat": 39.021732,
+      "lng": -76.917382,
+      "cluster": "Beltsville / Laurel",
+      "type": "residential"
+    },
+    {
+      "id": 14,
+      "name": "Stop 14",
+      "address": "7584 Edmonston Ln, College Park, MD 20742",
+      "lat": 38.99065,
+      "lng": -76.924,
+      "cluster": "College Park",
+      "type": "residential"
+    },
+    {
+      "id": 15,
+      "name": "Stop 15",
+      "address": "4212 Annapolis Pkwy, College Park, MD 20742",
+      "lat": 39.001,
+      "lng": -76.944228,
+      "cluster": "College Park",
+      "type": "residential"
+    },
+    {
+      "id": 16,
+      "name": "Stop 16",
+      "address": "8323 Decatur Ln, College Park, MD 20742",
+      "lat": 38.985188,
+      "lng": -76.92642,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 17,
+      "name": "Stop 17",
+      "address": "4507 Maple Ave, College Park, MD 20742",
+      "lat": 38.985705,
+      "lng": -76.936084,
+      "cluster": "College Park",
+      "type": "residential"
+    },
+    {
+      "id": 18,
+      "name": "Stop 18",
+      "address": "8667 Greenbelt Ct, College Park, MD 20742",
+      "lat": 39.00026,
+      "lng": -76.951881,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 19,
+      "name": "Stop 19",
+      "address": "8476 Hamilton Ln, College Park, MD 20742",
+      "lat": 38.988561,
+      "lng": -76.93037,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 20,
+      "name": "Stop 20",
+      "address": "4852 Maryland Ln, College Park, MD 20742",
+      "lat": 38.977,
+      "lng": -76.944814,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 21,
+      "name": "Stop 21",
+      "address": "8540 Madison Ln, College Park, MD 20742",
+      "lat": 38.996477,
+      "lng": -76.932354,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 22,
+      "name": "Stop 22",
+      "address": "7950 Cedar St, College Park, MD 20742",
+      "lat": 38.991581,
+      "lng": -76.931789,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 23,
+      "name": "Stop 23",
+      "address": "6838 Elm Ln, College Park, MD 20742",
+      "lat": 38.986296,
+      "lng": -76.935406,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 24,
+      "name": "Stop 24",
+      "address": "9055 Buchanan Blvd, College Park, MD 20742",
+      "lat": 38.994501,
+      "lng": -76.934503,
+      "cluster": "College Park",
+      "type": "residential"
+    },
+    {
+      "id": 25,
+      "name": "Stop 25",
+      "address": "831 Hamilton Way, College Park, MD 20742",
+      "lat": 38.989963,
+      "lng": -76.935389,
+      "cluster": "College Park",
+      "type": "commercial"
+    },
+    {
+      "id": 26,
+      "name": "Stop 26",
+      "address": "2635 Maple Ct, Greenbelt, MD 20770",
+      "lat": 39.001823,
+      "lng": -76.906668,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 27,
+      "name": "Stop 27",
+      "address": "8160 Decatur Rd, Greenbelt, MD 20770",
+      "lat": 38.994,
+      "lng": -76.905192,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 28,
+      "name": "Stop 28",
+      "address": "9899 Varnum Way, Greenbelt, MD 20770",
+      "lat": 39.002863,
+      "lng": -76.897373,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 29,
+      "name": "Stop 29",
+      "address": "2317 Sheridan Pl, Greenbelt, MD 20770",
+      "lat": 39.002918,
+      "lng": -76.895957,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 30,
+      "name": "Stop 30",
+      "address": "8620 Sheridan Dr, Greenbelt, MD 20770",
+      "lat": 38.996722,
+      "lng": -76.891324,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 31,
+      "name": "Stop 31",
+      "address": "1303 Oak Ct, Greenbelt, MD 20770",
+      "lat": 39.011761,
+      "lng": -76.899779,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 32,
+      "name": "Stop 32",
+      "address": "519 Kenilworth Ln, Greenbelt, MD 20770",
+      "lat": 39.018,
+      "lng": -76.904742,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 33,
+      "name": "Stop 33",
+      "address": "2088 Greenbelt Ln, Greenbelt, MD 20770",
+      "lat": 39.004236,
+      "lng": -76.892132,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 34,
+      "name": "Stop 34",
+      "address": "8613 Lincoln Pkwy, Greenbelt, MD 20770",
+      "lat": 39.007174,
+      "lng": -76.901808,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 35,
+      "name": "Stop 35",
+      "address": "1238 Annapolis Pkwy, Greenbelt, MD 20770",
+      "lat": 39.001772,
+      "lng": -76.896694,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 36,
+      "name": "Stop 36",
+      "address": "9025 Buchanan Ave, Greenbelt, MD 20770",
+      "lat": 39.003772,
+      "lng": -76.90145,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 37,
+      "name": "Stop 37",
+      "address": "435 Elm Way, Greenbelt, MD 20770",
+      "lat": 39.006115,
+      "lng": -76.902523,
+      "cluster": "Greenbelt",
+      "type": "residential"
+    },
+    {
+      "id": 38,
+      "name": "Stop 38",
+      "address": "2356 Washington Rd, Hyattsville, MD 20782",
+      "lat": 38.966208,
+      "lng": -76.967409,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 39,
+      "name": "Stop 39",
+      "address": "1388 Columbia St, Hyattsville, MD 20782",
+      "lat": 38.950005,
+      "lng": -76.952261,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 40,
+      "name": "Stop 40",
+      "address": "6911 Adams Ln, Hyattsville, MD 20782",
+      "lat": 38.959308,
+      "lng": -76.948048,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 41,
+      "name": "Stop 41",
+      "address": "8738 Sheridan Way, Hyattsville, MD 20782",
+      "lat": 38.949003,
+      "lng": -76.957051,
+      "cluster": "Hyattsville",
+      "type": "commercial"
+    },
+    {
+      "id": 42,
+      "name": "Stop 42",
+      "address": "3890 Maple Blvd, Hyattsville, MD 20782",
+      "lat": 38.961093,
+      "lng": -76.970203,
+      "cluster": "Hyattsville",
+      "type": "commercial"
+    },
+    {
+      "id": 43,
+      "name": "Stop 43",
+      "address": "3089 Maple Ct, Hyattsville, MD 20782",
+      "lat": 38.951943,
+      "lng": -76.962494,
+      "cluster": "Hyattsville",
+      "type": "commercial"
+    },
+    {
+      "id": 44,
+      "name": "Stop 44",
+      "address": "8920 Lincoln Blvd, Hyattsville, MD 20782",
+      "lat": 38.95009,
+      "lng": -76.94621,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 45,
+      "name": "Stop 45",
+      "address": "3613 Baltimore St, Hyattsville, MD 20782",
+      "lat": 38.953937,
+      "lng": -76.942899,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 46,
+      "name": "Stop 46",
+      "address": "4420 Pine Pkwy, Hyattsville, MD 20782",
+      "lat": 38.954335,
+      "lng": -76.959744,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 47,
+      "name": "Stop 47",
+      "address": "3139 Powder Mill Blvd, Hyattsville, MD 20782",
+      "lat": 38.951616,
+      "lng": -76.968373,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 48,
+      "name": "Stop 48",
+      "address": "4868 Maryland Rd, Hyattsville, MD 20782",
+      "lat": 38.953925,
+      "lng": -76.940967,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 49,
+      "name": "Stop 49",
+      "address": "4311 University Ave, Hyattsville, MD 20782",
+      "lat": 38.962179,
+      "lng": -76.952829,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 50,
+      "name": "Stop 50",
+      "address": "1637 Edmonston Way, Hyattsville, MD 20782",
+      "lat": 38.956519,
+      "lng": -76.949139,
+      "cluster": "Hyattsville",
+      "type": "residential"
+    },
+    {
+      "id": 51,
+      "name": "Stop 51",
+      "address": "7571 Adelphi Pl, Lanham, MD 20706",
+      "lat": 38.975984,
+      "lng": -76.871084,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 52,
+      "name": "Stop 52",
+      "address": "9833 College Pkwy, Lanham, MD 20706",
+      "lat": 38.962106,
+      "lng": -76.861414,
+      "cluster": "Lanham / Seabrook",
+      "type": "commercial"
+    },
+    {
+      "id": 53,
+      "name": "Stop 53",
+      "address": "8312 Edmonston St, Lanham, MD 20706",
+      "lat": 38.977698,
+      "lng": -76.876956,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 54,
+      "name": "Stop 54",
+      "address": "7255 Varnum Ave, Lanham, MD 20706",
+      "lat": 38.976211,
+      "lng": -76.870605,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 55,
+      "name": "Stop 55",
+      "address": "2104 Adams Pkwy, Lanham, MD 20706",
+      "lat": 38.964531,
+      "lng": -76.856018,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 56,
+      "name": "Stop 56",
+      "address": "5711 Lincoln Way, Lanham, MD 20706",
+      "lat": 38.977173,
+      "lng": -76.874084,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 57,
+      "name": "Stop 57",
+      "address": "2110 Pine Ave, Lanham, MD 20706",
+      "lat": 38.974163,
+      "lng": -76.868091,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 58,
+      "name": "Stop 58",
+      "address": "5051 Maple Pkwy, Lanham, MD 20706",
+      "lat": 38.963849,
+      "lng": -76.858251,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 59,
+      "name": "Stop 59",
+      "address": "4020 Hamilton Pkwy, Lanham, MD 20706",
+      "lat": 38.965743,
+      "lng": -76.861419,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 60,
+      "name": "Stop 60",
+      "address": "565 Edmonston Way, Lanham, MD 20706",
+      "lat": 38.970695,
+      "lng": -76.873346,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 61,
+      "name": "Stop 61",
+      "address": "2519 Jefferson Ave, Lanham, MD 20706",
+      "lat": 38.965718,
+      "lng": -76.864063,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 62,
+      "name": "Stop 62",
+      "address": "5256 Elm Pl, Lanham, MD 20706",
+      "lat": 38.96296,
+      "lng": -76.870261,
+      "cluster": "Lanham / Seabrook",
+      "type": "residential"
+    },
+    {
+      "id": 63,
+      "name": "Stop 63",
+      "address": "8522 Buchanan St, Landover, MD 20785",
+      "lat": 38.927778,
+      "lng": -76.904115,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 64,
+      "name": "Stop 64",
+      "address": "1021 Edmonston Ave, Landover, MD 20785",
+      "lat": 38.916372,
+      "lng": -76.907584,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 65,
+      "name": "Stop 65",
+      "address": "3734 Edmonston Way, Landover, MD 20785",
+      "lat": 38.927102,
+      "lng": -76.903403,
+      "cluster": "Landover / Cheverly",
+      "type": "commercial"
+    },
+    {
+      "id": 66,
+      "name": "Stop 66",
+      "address": "6638 Decatur Ct, Landover, MD 20785",
+      "lat": 38.939684,
+      "lng": -76.913201,
+      "cluster": "Landover / Cheverly",
+      "type": "commercial"
+    },
+    {
+      "id": 67,
+      "name": "Stop 67",
+      "address": "5730 Merrimac Dr, Landover, MD 20785",
+      "lat": 38.92834,
+      "lng": -76.891988,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 68,
+      "name": "Stop 68",
+      "address": "7867 Varnum Pl, Landover, MD 20785",
+      "lat": 38.920045,
+      "lng": -76.9039,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 69,
+      "name": "Stop 69",
+      "address": "8043 Varnum Ave, Landover, MD 20785",
+      "lat": 38.930641,
+      "lng": -76.899534,
+      "cluster": "Landover / Cheverly",
+      "type": "commercial"
+    },
+    {
+      "id": 70,
+      "name": "Stop 70",
+      "address": "6790 Sheridan Ave, Landover, MD 20785",
+      "lat": 38.931812,
+      "lng": -76.919112,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 71,
+      "name": "Stop 71",
+      "address": "4442 Elm Blvd, Landover, MD 20785",
+      "lat": 38.93242,
+      "lng": -76.902343,
+      "cluster": "Landover / Cheverly",
+      "type": "commercial"
+    },
+    {
+      "id": 72,
+      "name": "Stop 72",
+      "address": "9641 Adams Pl, Landover, MD 20785",
+      "lat": 38.931518,
+      "lng": -76.905396,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 73,
+      "name": "Stop 73",
+      "address": "8563 Sheridan Rd, Landover, MD 20785",
+      "lat": 38.920663,
+      "lng": -76.9002,
+      "cluster": "Landover / Cheverly",
+      "type": "commercial"
+    },
+    {
+      "id": 74,
+      "name": "Stop 74",
+      "address": "6476 Maryland Way, Landover, MD 20785",
+      "lat": 38.929842,
+      "lng": -76.903459,
+      "cluster": "Landover / Cheverly",
+      "type": "residential"
+    },
+    {
+      "id": 75,
+      "name": "Stop 75",
+      "address": "3209 Washington St, Riverdale, MD 20737",
+      "lat": 38.964122,
+      "lng": -76.925749,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 76,
+      "name": "Stop 76",
+      "address": "6467 Lincoln Ave, Riverdale, MD 20737",
+      "lat": 38.956346,
+      "lng": -76.9246,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "commercial"
+    },
+    {
+      "id": 77,
+      "name": "Stop 77",
+      "address": "5927 Sheridan Way, Riverdale, MD 20737",
+      "lat": 38.949203,
+      "lng": -76.940318,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 78,
+      "name": "Stop 78",
+      "address": "8932 Elm Rd, Riverdale, MD 20737",
+      "lat": 38.953557,
+      "lng": -76.928415,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 79,
+      "name": "Stop 79",
+      "address": "132 Buchanan Ct, Riverdale, MD 20737",
+      "lat": 38.963066,
+      "lng": -76.921542,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 80,
+      "name": "Stop 80",
+      "address": "9922 Adelphi Dr, Riverdale, MD 20737",
+      "lat": 38.954798,
+      "lng": -76.920423,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 81,
+      "name": "Stop 81",
+      "address": "1298 Columbia St, Riverdale, MD 20737",
+      "lat": 38.963304,
+      "lng": -76.928703,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 82,
+      "name": "Stop 82",
+      "address": "8271 Pine Way, Riverdale, MD 20737",
+      "lat": 38.953948,
+      "lng": -76.932807,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 83,
+      "name": "Stop 83",
+      "address": "7570 Baltimore Ct, Riverdale, MD 20737",
+      "lat": 38.960957,
+      "lng": -76.936681,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 84,
+      "name": "Stop 84",
+      "address": "8207 Hamilton St, Riverdale, MD 20737",
+      "lat": 38.957428,
+      "lng": -76.930741,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 85,
+      "name": "Stop 85",
+      "address": "7187 Kenilworth Way, Riverdale, MD 20737",
+      "lat": 38.955248,
+      "lng": -76.93136,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 86,
+      "name": "Stop 86",
+      "address": "8180 Columbia Ct, Riverdale, MD 20737",
+      "lat": 38.964363,
+      "lng": -76.933747,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 87,
+      "name": "Stop 87",
+      "address": "5810 Hamilton Ct, Riverdale, MD 20737",
+      "lat": 38.958345,
+      "lng": -76.932299,
+      "cluster": "Riverdale / Bladensburg",
+      "type": "residential"
+    },
+    {
+      "id": 88,
+      "name": "Stop 88",
+      "address": "2629 College Pl, Capitol Heights, MD 20743",
+      "lat": 38.893253,
+      "lng": -76.917409,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 89,
+      "name": "Stop 89",
+      "address": "2030 Maryland St, Capitol Heights, MD 20743",
+      "lat": 38.894843,
+      "lng": -76.905463,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "commercial"
+    },
+    {
+      "id": 90,
+      "name": "Stop 90",
+      "address": "4493 Jefferson Ct, Capitol Heights, MD 20743",
+      "lat": 38.887313,
+      "lng": -76.908467,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "commercial"
+    },
+    {
+      "id": 91,
+      "name": "Stop 91",
+      "address": "4908 Baltimore Ln, Capitol Heights, MD 20743",
+      "lat": 38.887673,
+      "lng": -76.911542,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 92,
+      "name": "Stop 92",
+      "address": "5493 Edmonston Pkwy, Capitol Heights, MD 20743",
+      "lat": 38.883864,
+      "lng": -76.904032,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 93,
+      "name": "Stop 93",
+      "address": "9052 Kenilworth Dr, Capitol Heights, MD 20743",
+      "lat": 38.884178,
+      "lng": -76.926,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 94,
+      "name": "Stop 94",
+      "address": "6649 Riggs Rd, Capitol Heights, MD 20743",
+      "lat": 38.88953,
+      "lng": -76.912259,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 95,
+      "name": "Stop 95",
+      "address": "5572 Baltimore Pl, Capitol Heights, MD 20743",
+      "lat": 38.886025,
+      "lng": -76.912207,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 96,
+      "name": "Stop 96",
+      "address": "8012 Maryland Ave, Capitol Heights, MD 20743",
+      "lat": 38.892403,
+      "lng": -76.918952,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 97,
+      "name": "Stop 97",
+      "address": "4501 Maryland Ave, Capitol Heights, MD 20743",
+      "lat": 38.891669,
+      "lng": -76.906012,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "commercial"
+    },
+    {
+      "id": 98,
+      "name": "Stop 98",
+      "address": "6152 Cedar Way, Capitol Heights, MD 20743",
+      "lat": 38.893132,
+      "lng": -76.91931,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "residential"
+    },
+    {
+      "id": 99,
+      "name": "Stop 99",
+      "address": "1666 Elm Ct, Capitol Heights, MD 20743",
+      "lat": 38.889972,
+      "lng": -76.910294,
+      "cluster": "Capitol Heights / Seat Pleasant",
+      "type": "commercial"
+    }
+  ]
+}
