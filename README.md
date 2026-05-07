@@ -1,4 +1,4 @@
-# Amazon Last-Mile Delivery Route Optimizer
+# MSML606 Project:  A Comparative Study of Dynamic Programming for Delivery Route Optimisation
 
 **Author: Amey Hengle**
 
