@@ -1,0 +1,8 @@
+# Core dependencies (standard library only for algorithms and dataset)
+# No external packages required to run main.py or app/index.html
+
+# Optional: load real Amazon dataset from HuggingFace
+# datasets>=2.0.0
+
+# Optional: run a local HTTP server for the web demo
+# python -m http.server 8080   (built-in, no install needed)

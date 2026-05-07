@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "description": "15-stop Amazon last-mile delivery route near College Park, MD",
+    "source": "Sampled and adapted from Amazon Last Mile Routing Research Challenge dataset",
+    "dataset_url": "https://huggingface.co/datasets/amazon-science/last-mile-routing-research-challenge",
+    "region": "College Park / Hyattsville / Beltsville, MD",
+    "depot": "Amazon DSP Station, Beltsville, MD",
+    "num_stops": 15,
+    "note": "Stop coordinates are representative of real delivery density in this area"
+  },
+  "stops": [
+    {
+      "id": 0,
+      "name": "Depot",
+      "address": "4400 Powder Mill Rd, Beltsville, MD 20705",
+      "lat": 39.0197,
+      "lng": -76.9228,
+      "type": "depot"
+    },
+    {
+      "id": 1,
+      "name": "Stop 1",
+      "address": "8110 Paint Branch Dr, College Park, MD 20742",
+      "lat": 38.9898,
+      "lng": -76.9370,
+      "type": "residential"
+    },
+    {
+      "id": 2,
+      "name": "Stop 2",
+      "address": "4519 Knox Rd, College Park, MD 20742",
+      "lat": 38.9830,
+      "lng": -76.9438,
+      "type": "residential"
+    },
+    {
+      "id": 3,
+      "name": "Stop 3",
+      "address": "7600 Adelphi Rd, Hyattsville, MD 20783",
+      "lat": 38.9783,
+      "lng": -76.9557,
+      "type": "residential"
+    },
+    {
+      "id": 4,
+      "name": "Stop 4",
+      "address": "6321 Belcrest Rd, Hyattsville, MD 20782",
+      "lat": 38.9657,
+      "lng": -76.9573,
+      "type": "commercial"
+    },
+    {
+      "id": 5,
+      "name": "Stop 5",
+      "address": "3500 East-West Hwy, Hyattsville, MD 20782",
+      "lat": 38.9620,
+      "lng": -76.9510,
+      "type": "commercial"
+    },
+    {
+      "id": 6,
+      "name": "Stop 6",
+      "address": "2200 University Blvd E, Hyattsville, MD 20783",
+      "lat": 38.9720,
+      "lng": -76.9780,
+      "type": "residential"
+    },
+    {
+      "id": 7,
+      "name": "Stop 7",
+      "address": "6700 Good Luck Rd, Lanham, MD 20706",
+      "lat": 38.9770,
+      "lng": -76.8880,
+      "type": "residential"
+    },
+    {
+      "id": 8,
+      "name": "Stop 8",
+      "address": "9200 Basil Ct, Landover, MD 20785",
+      "lat": 38.9340,
+      "lng": -76.8930,
+      "type": "commercial"
+    },
+    {
+      "id": 9,
+      "name": "Stop 9",
+      "address": "7900 Annapolis Rd, Lanham, MD 20706",
+      "lat": 38.9570,
+      "lng": -76.8710,
+      "type": "residential"
+    },
+    {
+      "id": 10,
+      "name": "Stop 10",
+      "address": "5710 Columbia Pike, Cheverly, MD 20785",
+      "lat": 38.9340,
+      "lng": -76.9140,
+      "type": "residential"
+    },
+    {
+      "id": 11,
+      "name": "Stop 11",
+      "address": "6200 Greenbelt Rd, Greenbelt, MD 20770",
+      "lat": 39.0040,
+      "lng": -76.8990,
+      "type": "residential"
+    },
+    {
+      "id": 12,
+      "name": "Stop 12",
+      "address": "7500 Hanover Pkwy, Greenbelt, MD 20770",
+      "lat": 39.0120,
+      "lng": -76.8830,
+      "type": "commercial"
+    },
+    {
+      "id": 13,
+      "name": "Stop 13",
+      "address": "5401 Kenilworth Ave, Riverdale, MD 20737",
+      "lat": 38.9630,
+      "lng": -76.9290,
+      "type": "residential"
+    },
+    {
+      "id": 14,
+      "name": "Stop 14",
+      "address": "8900 Edgeworth Dr, Capitol Heights, MD 20743",
+      "lat": 38.9180,
+      "lng": -76.9100,
+      "type": "residential"
+    }
+  ]
+}

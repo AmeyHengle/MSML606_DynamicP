@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Delivery Route Optimizer — MSML606</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #F7F6F1;
+    --surface:  #FFFFFF;
+    --surface2: #F1EFE8;
+    --border:   rgba(0,0,0,0.10);
+    --border2:  rgba(0,0,0,0.06);
+    --text:     #1A1A18;
+    --text2:    #5F5E5A;
+    --text3:    #888780;
+    --red:      #E24B4A;
+    --redf:     rgba(226,75,74,0.10);
+    --green:    #3B6D11;
+    --greenf:   rgba(59,109,17,0.10);
+    --blue:     #185FA5;
+    --bluef:    rgba(24,95,165,0.10);
+    --teal:     #0F6E56;
+    --tealf:    rgba(15,110,86,0.08);
+    --amber:    #854F0B;
+    --amberf:   rgba(133,79,11,0.10);
+    --radius:   10px;
+    --radius-sm: 6px;
+    --mono:     'SF Mono', 'Fira Code', monospace;
+    --sans:     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+  /* ── Layout ── */
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .logo { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .logo span { color: var(--text3); font-weight: 400; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+  nav { display: flex; gap: 4px; }
+  .tab { font-family: var(--sans); font-size: 13px; padding: 6px 14px; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--text2); cursor: pointer; transition: background .15s, color .15s; }
+  .tab.active { background: var(--text); color: #fff; }
+  .tab:hover:not(.active) { background: var(--surface2); }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Cards ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+
+  /* ── Controls ── */
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .btn { font-family: var(--sans); font-size: 13px; padding: 7px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: background .15s; }
+  .btn:hover { background: var(--surface2); }
+  .btn.primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn.primary:hover { background: #333; }
+  .btn.green { border-color: #639922; color: #3B6D11; }
+  .btn.green:hover { background: var(--greenf); }
+  .btn:disabled { opacity: .38; cursor: not-allowed; }
+  .slider-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+  input[type=range] { accent-color: var(--teal); }
+  select { font-family: var(--sans); font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); cursor: pointer; }
+
+  /* ── Canvas ── */
+  canvas { display: block; width: 100%; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border2); }
+
+  /* ── Metrics ── */
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .metric .lbl { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+  .metric .val { font-size: 22px; font-weight: 600; font-family: var(--mono); }
+  .metric .sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .val.red { color: var(--red); }
+  .val.green { color: var(--green); }
+  .val.blue { color: var(--blue); }
+  .val.teal { color: var(--teal); }
+  .val.amber { color: var(--amber); }
+
+  /* ── Insight bar ── */
+  .insight { background: var(--surface); border-left: 2px solid var(--teal); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; min-height: 40px; }
+  .insight b { color: var(--text); }
+
+  /* ── Scenario grid ── */
+  .sc-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+  .sc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 8px; cursor: pointer; text-align: center; transition: border-color .15s; }
+  .sc:hover { border-color: var(--teal); }
+  .sc.active { border: 1.5px solid var(--teal); background: var(--tealf); }
+  .sc-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .sc-name { font-size: 12px; font-weight: 600; display: block; }
+  .sc-desc { font-size: 11px; color: var(--text3); display: block; margin-top: 2px; }
+
+  /* ── Legend ── */
+  .legend { display: flex; gap: 18px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .leg-line { width: 22px; height: 3px; border-radius: 2px; }
+
+  /* ── Progress ── */
+  .prog-wrap { height: 3px; background: var(--border2); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--teal); border-radius: 2px; width: 0; transition: width .08s; }
+  .status { font-size: 12px; color: var(--text3); text-align: center; min-height: 16px; font-family: var(--mono); }
+
+  /* ── Step-through (Held-Karp explainer) ── */
+  .step-nav { display: flex; align-items: center; gap: 10px; }
+  .step-ctr { font-size: 12px; color: var(--text3); flex: 1; text-align: center; }
+  .phase-pills { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pill { font-size: 10px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--text3); background: var(--surface2); }
+  .pill.active { background: var(--tealf); border-color: var(--teal); color: var(--teal); font-weight: 600; }
+  .pill.done { background: var(--surface); color: var(--text2); border-color: var(--border2); }
+  .dp-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--mono); }
+  .dp-table th { font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+  .dp-table td { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(--border2); color: var(--text2); transition: background .2s; }
+  .dp-table td.revealed { color: var(--text); background: var(--surface); }
+  .dp-table td.active { background: var(--tealf); color: var(--teal); font-weight: 600; }
+  .dp-table td.best { background: var(--greenf); color: var(--green); font-weight: 600; }
+  .dp-table td.lbl { text-align: left; color: var(--text3); font-size: 11px; }
+
+  @media (max-width: 680px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .sc-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Amazon Route Optimizer <span>— MSML606 Dynamic Programming</span></div>
+  <nav>
+    <button class="tab active" onclick="showTab('demo')">Route demo</button>
+    <button class="tab" onclick="showTab('complexity')">Complexity</button>
+    <button class="tab" onclick="showTab('stress')">Edge cases</button>
+    <button class="tab" onclick="showTab('explainer')">How DP works</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════════ TAB 1: DEMO -->
+<div class="panel active" id="tab-demo">
+  <div class="controls">
+    <select id="dataSource" onchange="onSourceChange()">
+      <option value="sample">Sample route (College Park, MD — 15 stops)</option>
+      <option value="random">Random stops</option>
+    </select>
+    <div class="slider-row" id="nCtrl" style="display:none">
+      <span>Stops</span>
+      <input type="range" min="5" max="15" value="10" id="nSlider" oninput="nVal.textContent=this.value">
+      <span id="nVal">10</span>
+    </div>
+    <button class="btn" id="regenBtn" onclick="initDemo()">New points</button>
+    <button class="btn green" id="runDemoBtn" onclick="runDemo()">Animate routes</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:14px">
+    <div class="metric"><div class="lbl">Greedy distance</div><div class="val red" id="dG">—</div><div class="sub">nearest neighbor</div></div>
+    <div class="metric"><div class="lbl">2-opt distance</div><div class="val amber" id="dO">—</div><div class="sub">local search</div></div>
+    <div class="metric"><div class="lbl">Held-Karp DP</div><div class="val green" id="dHK">—</div><div class="sub">exact optimal</div></div>
+    <div class="metric"><div class="lbl">Max savings</div><div class="val teal" id="dSave">—</div><div class="sub">greedy → DP</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span style="color:var(--red)">●</span> Greedy — nearest neighbor</div>
+      <canvas id="cG" height="280"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><span style="color:var(--green)">●</span> Held-Karp DP — exact optimal</div>
+      <canvas id="cHK" height="280"></canvas>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#185FA5"></div>Depot</div>
+    <div class="leg"><div class="leg-line" style="background:var(--red)"></div>Greedy route</div>
+    <div class="leg"><div class="leg-line" style="background:var(--green)"></div>Optimal route</div>
+  </div>
+  <div class="status" id="demoStatus" style="margin-top:10px">Select a data source and click "Animate routes"</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ TAB 2: COMPLEXITY SIMULATION -->
+<div class="panel" id="tab-complexity">
+  <div class="controls">
+    <div class="slider-row">
+      <span>Trials/step</span>
+      <input type="range" min="3" max="15" value="8" id="trialsSlider" oninput="trialsVal.textContent=this.value">
+      <span id="trialsVal">8</span>
+    </div>
+    <div class="slider-row">
+      <span>Max stops</span>
+      <input type="range" min="10" max="30" value="20" id="maxNSlider" oninput="maxNVal.textContent=this.value">
+      <span id="maxNVal">20</span>
+    </div>
+    <button class="btn green" id="simBtn" onclick="runSim()">Run simulation</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:14px">
+    <div class="metric"><div class="lbl">Simulations run</div><div class="val blue" id="mTotal">—</div><div class="sub">total trials</div></div>
+    <div class="metric"><div class="lbl">Avg gap</div><div class="val teal" id="mAvg">—</div><div class="sub">% optimized saves</div></div>
+    <div class="metric"><div class="lbl">Gap at max N</div><div class="val red" id="mMax">—</div><div class="sub">worst case for greedy</div></div>
+    <div class="metric"><div class="lbl">Gap trend</div><div class="val" id="mTrend">—</div><div class="sub">as stops increase</div></div>
+  </div>
+
+  <div class="prog-wrap"><div class="prog-fill" id="simProg"></div></div>
+  <div class="card">
+    <canvas id="simChart" height="320"></canvas>
+    <div class="legend" style="margin-top:12px">
+      <div class="leg"><div class="leg-line" style="background:var(--red)"></div>Greedy total distance</div>
+      <div class="leg"><div class="leg-line" style="background:var(--green)"></div>2-opt optimized distance</div>
+    </div>
+    <div class="status" id="simStatus" style="margin-top:8px">Configure and click "Run simulation"</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ TAB 3: EDGE CASE STRESS TEST -->
+<div class="panel" id="tab-stress">
+  <div class="sc-grid" id="scGrid"></div>
+  <div class="insight" id="scInsight">Select a scenario above to see why it challenges or defeats the greedy algorithm.</div>
+
+  <div class="controls">
+    <div class="slider-row">
+      <span>Stops N</span>
+      <input type="range" min="6" max="20" value="12" id="scN" oninput="scNVal.textContent=this.value; stopAnims(); scGenerate()">
+      <span id="scNVal">12</span>
+    </div>
+    <button class="btn" id="scRegen" onclick="stopAnims();scGenerate()">Regenerate</button>
+    <button class="btn green" id="scRun" onclick="scAnimate()">Animate routes</button>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:12px">
+    <div class="metric"><div class="lbl">Greedy distance</div><div class="val red" id="scG">—</div><div class="sub">nearest neighbor</div></div>
+    <div class="metric"><div class="lbl">2-opt distance</div><div class="val green" id="scO">—</div><div class="sub">after improvement</div></div>
+    <div class="metric"><div class="lbl">Gap</div><div class="val teal" id="scGap">—</div><div class="sub">% saved</div></div>
+    <div class="metric"><div class="lbl">Greedy ratio</div><div class="val amber" id="scRatio">—</div><div class="sub">greedy ÷ optimal</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span style="color:var(--red)">●</span> Greedy route</div>
+      <canvas id="scCG" height="260"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><span style="color:var(--green)">●</span> 2-opt optimized</div>
+      <canvas id="scCO" height="260"></canvas>
+    </div>
+  </div>
+  <div class="status" id="scStatus" style="margin-top:10px">Pick a scenario, then click "Animate routes"</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ TAB 4: HOW DP WORKS -->
+<div class="panel" id="tab-explainer">
+  <div class="insight" id="hkExplain">Loading...</div>
+  <div class="phase-pills" id="hkPills"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Route map — 4 stops</div>
+      <canvas id="hkMap" height="240"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">DP table — dp[subset][endpoint]</div>
+      <div style="overflow-x:auto"><table class="dp-table" id="hkTable"></table></div>
+    </div>
+  </div>
+
+  <div class="step-nav" style="margin-top:12px">
+    <button class="btn" id="hkPrev" onclick="hkStep(-1)" disabled>Prev</button>
+    <div class="step-ctr" id="hkCtr"></div>
+    <button class="btn green" id="hkNext" onclick="hkStep(1)">Next step</button>
+  </div>
+
+  <div class="grid-3" style="margin-top:14px">
+    <div class="metric"><div class="lbl">Brute force routes</div><div class="val red">6</div><div class="sub">(n-1)! for n=4</div></div>
+    <div class="metric"><div class="lbl">Held-Karp states</div><div class="val blue">64</div><div class="sub">2ⁿ × n subproblems</div></div>
+    <div class="metric"><div class="lbl">At 15 stops</div><div class="val teal">87B → 7K</div><div class="sub">brute vs DP states</div></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SHARED GEOMETRY UTILITIES
+// ═══════════════════════════════════════════════════════════
+const SAMPLE_STOPS = [
+  {id:0, name:"Depot",   lat:39.0197, lng:-76.9228, address:"Beltsville DSP"},
+  {id:1, name:"Stop 1",  lat:38.9898, lng:-76.9370, address:"College Park"},
+  {id:2, name:"Stop 2",  lat:38.9830, lng:-76.9438, address:"College Park"},
+  {id:3, name:"Stop 3",  lat:38.9783, lng:-76.9557, address:"Hyattsville"},
+  {id:4, name:"Stop 4",  lat:38.9657, lng:-76.9573, address:"Hyattsville"},
+  {id:5, name:"Stop 5",  lat:38.9620, lng:-76.9510, address:"Hyattsville"},
+  {id:6, name:"Stop 6",  lat:38.9720, lng:-76.9780, address:"Hyattsville"},
+  {id:7, name:"Stop 7",  lat:38.9770, lng:-76.8880, address:"Lanham"},
+  {id:8, name:"Stop 8",  lat:38.9340, lng:-76.8930, address:"Landover"},
+  {id:9, name:"Stop 9",  lat:38.9570, lng:-76.8710, address:"Lanham"},
+  {id:10,name:"Stop 10", lat:38.9340, lng:-76.9140, address:"Cheverly"},
+  {id:11,name:"Stop 11", lat:39.0040, lng:-76.8990, address:"Greenbelt"},
+  {id:12,name:"Stop 12", lat:39.0120, lng:-76.8830, address:"Greenbelt"},
+  {id:13,name:"Stop 13", lat:38.9630, lng:-76.9290, address:"Riverdale"},
+  {id:14,name:"Stop 14", lat:38.9180, lng:-76.9100, address:"Capitol Heights"},
+];
+
+function dist(a, b) { return Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2); }
+function routeCost(pts, route) {
+  let d = 0, n = route.length;
+  for (let i = 0; i < n; i++) d += dist(pts[route[i]], pts[route[(i+1)%n]]);
+  return d;
+}
+function buildDistMatrix(pts) {
+  const n = pts.length, m = Array.from({length:n}, () => new Array(n).fill(0));
+  for (let i=0;i<n;i++) for (let j=0;j<n;j++) if(i!==j) m[i][j]=dist(pts[i],pts[j]);
+  return m;
+}
+
+// Project lat/lng onto canvas with padding
+function projectStops(stops, W, H, pad=40) {
+  const lats = stops.map(s=>s.lat), lngs = stops.map(s=>s.lng);
+  const latMin=Math.min(...lats), latMax=Math.max(...lats);
+  const lngMin=Math.min(...lngs), lngMax=Math.max(...lngs);
+  const latR = latMax-latMin || 0.01, lngR = lngMax-lngMin || 0.01;
+  const cosLat = Math.cos((latMin+latMax)/2 * Math.PI/180);
+  const scaleX = (W-2*pad)/(lngR*cosLat), scaleY = (H-2*pad)/latR;
+  const scale = Math.min(scaleX, scaleY);
+  const pw = lngR*cosLat*scale, ph = latR*scale;
+  const ox = pad+(W-2*pad-pw)/2, oy = pad+(H-2*pad-ph)/2;
+  return stops.map(s => [
+    ox + (s.lng-lngMin)*cosLat*scale,
+    oy + (latMax-s.lat)*scale
+  ]);
+}
+
+function randPoints(n, W, H, pad=32) {
+  return Array.from({length:n}, () => [pad+Math.random()*(W-2*pad), pad+Math.random()*(H-2*pad)]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GREEDY NEAREST NEIGHBOR
+// ═══════════════════════════════════════════════════════════
+function greedy(pts) {
+  const n=pts.length, vis=new Array(n).fill(false), route=[0]; vis[0]=true;
+  for(let i=1;i<n;i++){
+    const cur=route[route.length-1]; let best=-1,bd=Infinity;
+    for(let j=0;j<n;j++) if(!vis[j]&&dist(pts[cur],pts[j])<bd){bd=dist(pts[cur],pts[j]);best=j;}
+    vis[best]=true; route.push(best);
+  }
+  return route;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 2-OPT LOCAL SEARCH
+// ═══════════════════════════════════════════════════════════
+function twoOpt(pts, route) {
+  let r=[...route], imp=true;
+  while(imp){imp=false;
+    for(let i=0;i<r.length-1;i++) for(let j=i+2;j<r.length;j++){
+      if(i===0&&j===r.length-1) continue;
+      const d1=dist(pts[r[i]],pts[r[i+1]])+dist(pts[r[j]],pts[r[(j+1)%r.length]]);
+      const d2=dist(pts[r[i]],pts[r[j]])+dist(pts[r[i+1]],pts[r[(j+1)%r.length]]);
+      if(d2<d1-.001){r=[...r.slice(0,i+1),...r.slice(i+1,j+1).reverse(),...r.slice(j+1)];imp=true;}
+    }
+  }
+  return r;
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELD-KARP DP (exact, O(2^n * n^2))
+// ═══════════════════════════════════════════════════════════
+function heldKarp(pts) {
+  const n=pts.length, dp={}, par={};
+  for(let i=1;i<n;i++){const S=(1)|(1<<i); dp[`${S},${i}`]=dist(pts[0],pts[i]); par[`${S},${i}`]=0;}
+  for(let sz=3;sz<=n;sz++){
+    for(let S=0;S<(1<<n);S++){
+      if(popcount(S)!==sz||!(S&1)) continue;
+      for(let i=1;i<n;i++){
+        if(!(S&(1<<i))) continue;
+        const Sp=S^(1<<i); let best=Infinity,bp=-1;
+        for(let j=0;j<n;j++){
+          if(j===i||!(Sp&(1<<j))) continue;
+          const v=(dp[`${Sp},${j}`]??Infinity)+dist(pts[j],pts[i]);
+          if(v<best){best=v;bp=j;}
+        }
+        dp[`${S},${i}`]=best; par[`${S},${i}`]=bp;
+      }
+    }
+  }
+  const full=(1<<n)-1; let bestCost=Infinity,bestEnd=-1;
+  for(let i=1;i<n;i++){const c=(dp[`${full},${i}`]??Infinity)+dist(pts[i],pts[0]);if(c<bestCost){bestCost=c;bestEnd=i;}}
+  const route=[]; let S=full, cur=bestEnd;
+  while(cur!==0){route.push(cur);const p=par[`${S},${cur}`];S^=(1<<cur);cur=p;}
+  route.push(0); route.reverse();
+  return {route, cost:bestCost};
+}
+function popcount(x){let c=0;while(x){c+=x&1;x>>=1;}return c;}
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS DRAWING
+// ═══════════════════════════════════════════════════════════
+function setupCanvas(id) {
+  const c=document.getElementById(id), dpr=devicePixelRatio||1;
+  const W=c.offsetWidth||340, H=parseInt(c.getAttribute('height'))||260;
+  c.width=W*dpr; c.height=H*dpr;
+  const ctx=c.getContext('2d'); ctx.scale(dpr,dpr);
+  return {ctx,W,H};
+}
+
+function drawRoute(canvasId, pts, route, color, colorF, step) {
+  const {ctx,W,H}=setupCanvas(canvasId);
+  ctx.clearRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='rgba(0,0,0,0.04)'; ctx.lineWidth=0.5;
+  for(let x=0;x<W;x+=28){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=28){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // Route edges
+  const s=step===undefined?route.length:step;
+  for(let i=0;i<s&&i<route.length;i++){
+    const nx=(i+1)%route.length;
+    if(i===s-1&&step!==undefined&&step<route.length) break;
+    const a=pts[route[i]],b=pts[route[nx]];
+    ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
+    const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,ang=Math.atan2(b[1]-a[1],b[0]-a[0]);
+    ctx.save();ctx.translate(mx,my);ctx.rotate(ang);
+    ctx.beginPath();ctx.moveTo(-4,-3);ctx.lineTo(4,0);ctx.lineTo(-4,3);
+    ctx.fillStyle=color;ctx.fill();ctx.restore();
+  }
+  // Nodes
+  pts.forEach((p,i)=>{
+    const isDepot=i===0, visited=route.indexOf(i)<s;
+    ctx.beginPath();ctx.arc(p[0],p[1],isDepot?9:6.5,0,Math.PI*2);
+    ctx.fillStyle=isDepot?'rgba(24,95,165,0.15)':(visited?colorF:'#F1EFE8');
+    ctx.fill();
+    ctx.strokeStyle=isDepot?'#185FA5':(visited?color:'#B4B2A9');
+    ctx.lineWidth=isDepot?2:1.5; ctx.stroke();
+    ctx.fillStyle=isDepot?'#185FA5':(visited?color:'#888780');
+    ctx.font=`${isDepot?600:400} ${isDepot?9:8}px monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(isDepot?'D':i,p[0],p[1]);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB 1: ROUTE DEMO
+// ═══════════════════════════════════════════════════════════
+let demoPts=[], demoGR=[], demoHK=[], demoAnimG=null, demoAnimHK=null;
+
+function onSourceChange() {
+  const isRandom=document.getElementById('dataSource').value==='random';
+  document.getElementById('nCtrl').style.display=isRandom?'flex':'none';
+  initDemo();
+}
+
+function initDemo() {
+  if(demoAnimG) clearInterval(demoAnimG);
+  if(demoAnimHK) clearInterval(demoAnimHK);
+  const source=document.getElementById('dataSource').value;
+  const c=document.getElementById('cG'), W=c.offsetWidth||340, H=280;
+  if(source==='sample') {
+    demoPts=projectStops(SAMPLE_STOPS, W, H, 36);
+  } else {
+    const n=parseInt(document.getElementById('nSlider').value);
+    demoPts=randPoints(n, W, H);
+  }
+  const n=demoPts.length;
+  demoGR=greedy(demoPts);
+  if(n<=15){ const hk=heldKarp(demoPts); demoHK=hk.route; }
+  else { demoHK=twoOpt(demoPts,demoGR); }
+  document.getElementById('dG').textContent='—';
+  document.getElementById('dO').textContent='—';
+  document.getElementById('dHK').textContent='—';
+  document.getElementById('dSave').textContent='—';
+  drawRoute('cG', demoPts, demoGR, '#E24B4A', 'rgba(226,75,74,0.12)', demoGR.length);
+  drawRoute('cHK', demoPts, demoHK, '#3B6D11', 'rgba(59,109,17,0.12)', demoHK.length);
+  document.getElementById('demoStatus').textContent='Points ready — click "Animate routes"';
+}
+
+function runDemo() {
+  if(demoAnimG) clearInterval(demoAnimG);
+  if(demoAnimHK) clearInterval(demoAnimHK);
+  const btn=document.getElementById('runDemoBtn');
+  btn.disabled=true;
+  drawRoute('cG', demoPts, demoGR, '#E24B4A', 'rgba(226,75,74,0.12)', 0);
+  drawRoute('cHK', demoPts, demoHK, '#3B6D11', 'rgba(59,109,17,0.12)', 0);
+  let sG=0;
+  document.getElementById('demoStatus').textContent='Animating greedy route...';
+  demoAnimG=setInterval(()=>{
+    sG++;
+    drawRoute('cG', demoPts, demoGR, '#E24B4A', 'rgba(226,75,74,0.12)', sG);
+    document.getElementById('dG').textContent=Math.round(routeCost(demoPts,demoGR)*sG/demoGR.length);
+    if(sG>=demoGR.length){
+      clearInterval(demoAnimG);
+      document.getElementById('dG').textContent=Math.round(routeCost(demoPts,demoGR));
+      document.getElementById('demoStatus').textContent='Greedy done — animating optimized route...';
+      let sHK=0;
+      setTimeout(()=>{
+        demoAnimHK=setInterval(()=>{
+          sHK++;
+          drawRoute('cHK', demoPts, demoHK, '#3B6D11', 'rgba(59,109,17,0.12)', sHK);
+          document.getElementById('dHK').textContent=Math.round(routeCost(demoPts,demoHK)*sHK/demoHK.length);
+          if(sHK>=demoHK.length){
+            clearInterval(demoAnimHK);
+            const gCost=routeCost(demoPts,demoGR), hkCost=routeCost(demoPts,demoHK);
+            document.getElementById('dG').textContent=Math.round(gCost);
+            document.getElementById('dHK').textContent=Math.round(hkCost);
+            document.getElementById('dO').textContent=Math.round(hkCost);
+            const save=((gCost-hkCost)/gCost*100).toFixed(1);
+            document.getElementById('dSave').textContent=save+'%';
+            document.getElementById('demoStatus').textContent=`Done — optimal route saves ${save}% over greedy`;
+            btn.disabled=false;
+          }
+        },200);
+      },400);
+    }
+  },200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB 2: COMPLEXITY SIMULATION
+// ═══════════════════════════════════════════════════════════
+let simRunning=false, simData=[];
+
+async function runSim() {
+  if(simRunning) return;
+  simRunning=true;
+  document.getElementById('simBtn').disabled=true;
+  simData=[];
+  const trials=parseInt(document.getElementById('trialsSlider').value);
+  const maxN=parseInt(document.getElementById('maxNSlider').value);
+  const steps=Array.from({length:maxN-2},(_,i)=>i+3);
+  document.getElementById('simStatus').textContent='Starting simulation...';
+  document.getElementById('simProg').style.width='0%';
+  ['mTotal','mAvg','mMax','mTrend'].forEach(id=>document.getElementById(id).textContent='—');
+
+  for(let si=0;si<steps.length;si++){
+    const n=steps[si]; let gSum=0, oSum=0;
+    for(let t=0;t<trials;t++){
+      const {ctx,W,H}=setupCanvas('simChart');
+      const pts=randPoints(n,W,H,20);
+      const gr=greedy(pts), op=twoOpt(pts,gr);
+      gSum+=routeCost(pts,gr); oSum+=routeCost(pts,op);
+    }
+    simData.push({n, greedy:gSum/trials, opt:oSum/trials});
+    document.getElementById('simProg').style.width=((si+1)/steps.length*100).toFixed(1)+'%';
+    document.getElementById('simStatus').textContent=`Simulating ${n} stops (avg of ${trials} trials)...`;
+    drawSimChart();
+    await new Promise(r=>setTimeout(r,0));
+  }
+  const gaps=simData.map(d=>(d.greedy-d.opt)/d.greedy*100);
+  const avgGap=gaps.reduce((a,b)=>a+b,0)/gaps.length;
+  const maxGap=gaps[gaps.length-1];
+  const earlyGap=gaps.slice(0,3).reduce((a,b)=>a+b,0)/3;
+  const lateGap=gaps.slice(-3).reduce((a,b)=>a+b,0)/3;
+  const trend=lateGap>earlyGap?'widening':'stable';
+  document.getElementById('mTotal').textContent=steps.length*trials;
+  document.getElementById('mAvg').textContent=avgGap.toFixed(1)+'%';
+  document.getElementById('mMax').textContent=maxGap.toFixed(1)+'%';
+  const tEl=document.getElementById('mTrend');
+  tEl.textContent=trend; tEl.className='val '+(trend==='widening'?'red':'green');
+  document.getElementById('simStatus').textContent=`Complete — ${steps.length*trials} simulations across ${steps.length} stop counts`;
+  simRunning=false;
+  document.getElementById('simBtn').disabled=false;
+}
+
+function drawSimChart() {
+  const {ctx,W,H}=setupCanvas('simChart');
+  ctx.clearRect(0,0,W,H);
+  if(!simData.length){ctx.fillStyle='#888780';ctx.font='13px sans-serif';ctx.textAlign='center';ctx.fillText('Run simulation to see results',W/2,H/2);return;}
+  const ML=58,MR=20,MT=20,MB=40,cw=W-ML-MR,ch=H-MT-MB;
+  const allY=simData.flatMap(d=>[d.greedy,d.opt]);
+  const maxY=Math.max(...allY)*1.08,minX=simData[0].n,maxX=simData[simData.length-1].n;
+  const xS=n=>ML+(n-minX)/(maxX-minX)*cw, yS=v=>MT+ch-v/maxY*ch;
+  // Grid
+  for(let i=0;i<=5;i++){const y=MT+ch/5*i;ctx.beginPath();ctx.moveTo(ML,y);ctx.lineTo(ML+cw,y);ctx.strokeStyle='rgba(0,0,0,0.05)';ctx.lineWidth=0.5;ctx.stroke();ctx.fillStyle='#888780';ctx.font='10px monospace';ctx.textAlign='right';ctx.fillText(Math.round(maxY*(1-i/5)),ML-4,y+3);}
+  simData.forEach((d,i)=>{if(i===0||i%2===0||simData.length<12){ctx.fillStyle='#888780';ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText(d.n,xS(d.n),MT+ch+16);}});
+  ctx.fillStyle='#888780';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('number of delivery stops',ML+cw/2,H-2);
+  // Gap fill
+  ctx.beginPath();simData.forEach((d,i)=>{i===0?ctx.moveTo(xS(d.n),yS(d.opt)):ctx.lineTo(xS(d.n),yS(d.opt));});
+  simData.slice().reverse().forEach(d=>ctx.lineTo(xS(d.n),yS(d.greedy)));
+  ctx.closePath();ctx.fillStyle='rgba(15,110,86,0.06)';ctx.fill();
+  // Lines
+  [['greedy','#E24B4A'],['opt','#3B6D11']].forEach(([key,col])=>{
+    ctx.beginPath();simData.forEach((d,i)=>{i===0?ctx.moveTo(xS(d.n),yS(d[key])):ctx.lineTo(xS(d.n),yS(d[key]));});
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
+    simData.forEach(d=>{ctx.beginPath();ctx.arc(xS(d.n),yS(d[key]),3,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();});
+  });
+  const last=simData[simData.length-1];
+  ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillStyle='#E24B4A';ctx.fillText('greedy',xS(last.n)+4,yS(last.greedy)+4);
+  ctx.fillStyle='#3B6D11';ctx.fillText('optimized',xS(last.n)+4,yS(last.opt)-4);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB 3: EDGE CASE STRESS TEST
+// ═══════════════════════════════════════════════════════════
+const SCENARIOS=[
+  {id:'random',icon:'⬡',name:'Random',desc:'Uniform random',color:'#888780',
+   insight:'The baseline. Greedy performs decently but makes avoidable detours. 2-opt consistently saves 5–20%.',
+   gen:(n,W,H,p)=>Array.from({length:n},()=>[p+Math.random()*(W-2*p),p+Math.random()*(H-2*p)])},
+  {id:'clustered',icon:'◉',name:'Clustered',desc:'Tight groups far apart',color:'#E24B4A',
+   insight:'Greedy gets trapped inside a cluster, exhausts it, then makes an expensive cross-cluster leap. 2-opt finds the right inter-cluster bridges early.',
+   gen:(n,W,H,p)=>{const centers=[[W*.18,H*.2],[W*.8,H*.25],[W*.5,H*.8]];return Array.from({length:n},(_,i)=>{const c=centers[i%3];return[c[0]+(Math.random()-.5)*W*.18,c[1]+(Math.random()-.5)*H*.18];});}},
+  {id:'ring',icon:'○',name:'Ring',desc:'Points on a circle',color:'#185FA5',
+   insight:'Greedy\'s best case — nearest neighbor is always the adjacent ring point. Expect a very small gap here. Good sanity check that 2-opt does not regress.',
+   gen:(n,W,H,p)=>{const cx=W/2,cy=H/2,r=Math.min(W,H)/2-p-10;return Array.from({length:n},(_,i)=>[cx+r*Math.cos(2*Math.PI*i/n-Math.PI/2),cy+r*Math.sin(2*Math.PI*i/n-Math.PI/2)]);},},
+  {id:'grid',icon:'⊞',name:'Grid',desc:'Even lattice',color:'#3B6D11',
+   insight:'Greedy zigzags across rows instead of sweeping them. 2-opt restructures into a clean boustrophedon (back-and-forth) sweep, visibly reducing crossings.',
+   gen:(n,W,H,p)=>{const cols=Math.ceil(Math.sqrt(n)),rows=Math.ceil(n/cols),pts=[];const sx=(W-2*p)/(cols-1||1),sy=(H-2*p)/(rows-1||1);for(let r=0;r<rows;r++)for(let c=0;c<cols&&pts.length<n;c++)pts.push([p+c*sx,p+r*sy]);return pts;}},
+  {id:'adversarial',icon:'W',name:'Adversarial',desc:'Classic greedy trap',color:'#E24B4A',
+   insight:'The "W" layout is a textbook greedy killer. Points at alternating corners look close diagonally, so greedy zigzags across the width. Optimal sweeps the length.',
+   gen:(n,W,H,p)=>{const pts=[],cols=Math.ceil(n/2);for(let i=0;i<cols&&pts.length<n;i++){pts.push([p+i*(W-2*p)/(cols-1),p]);if(pts.length<n)pts.push([p+(i+.5)*(W-2*p)/(cols-1),H-p]);}return pts.slice(0,n);}},
+  {id:'spiral',icon:'@',name:'Spiral',desc:'Tightening path',color:'#854F0B',
+   insight:'Greedy follows adjacent spiral arms early, but as it tightens, nearby-looking points belong to different loop layers. 2-opt untangles crossings but can\'t fix global ordering.',
+   gen:(n,W,H,p)=>{const cx=W/2,cy=H/2;return Array.from({length:n},(_,i)=>{const t=i/n,a=t*4*Math.PI,r=(Math.min(W,H)/2-p-8)*t;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];});}},
+  {id:'outlier',icon:'•',name:'Outlier',desc:'One remote stop',color:'#185FA5',
+   insight:'Greedy visits the outlier mid-journey. Optimized pushes it to a logical endpoint, minimizing the detour cost.',
+   gen:(n,W,H,p)=>{const pts=Array.from({length:n-1},()=>[p+Math.random()*(W*.45),p+Math.random()*(H-2*p)]);pts.push([W-p-8,H/2]);return pts;}},
+  {id:'collinear',icon:'―',name:'Collinear',desc:'All on a line',color:'#888780',
+   insight:'Trivially optimal for both algorithms. Good sanity check: both should produce near-identical distances. Any large gap here indicates a bug.',
+   gen:(n,W,H,p)=>Array.from({length:n},(_,i)=>[p+i*(W-2*p)/(n-1),H/2+(Math.random()-.5)*6])},
+];
+
+let scActive=SCENARIOS[0], scPts=[], scGR=[], scOP=[], scAnimG=null, scAnimO=null;
+
+function stopAnims(){if(scAnimG)clearInterval(scAnimG);if(scAnimO)clearInterval(scAnimO);scAnimG=scAnimO=null;}
+
+// Build scenario grid
+const scGrid=document.getElementById('scGrid');
+SCENARIOS.forEach((sc,idx)=>{
+  const el=document.createElement('div');
+  el.className='sc'+(idx===0?' active':'');
+  el.innerHTML=`<span class="sc-icon">${sc.icon}</span><span class="sc-name">${sc.name}</span><span class="sc-desc">${sc.desc}</span>`;
+  el.onclick=()=>{
+    document.querySelectorAll('.sc').forEach(e=>e.classList.remove('active'));
+    el.classList.add('active'); scActive=sc;
+    document.getElementById('scInsight').innerHTML=`<b>${sc.name}:</b> ${sc.insight}`;
+    stopAnims(); scGenerate();
+  };
+  scGrid.appendChild(el);
+});
+
+function scGenerate(){
+  const n=parseInt(document.getElementById('scN').value);
+  const {W,H}=setupCanvas('scCG');
+  scPts=scActive.gen(n,W,H,28);
+  scGR=greedy(scPts); scOP=twoOpt(scPts,[...scGR]);
+  const gCost=routeCost(scPts,scGR), oCost=routeCost(scPts,scOP);
+  const gap=((gCost-oCost)/gCost*100);
+  document.getElementById('scG').textContent=Math.round(gCost);
+  document.getElementById('scO').textContent=Math.round(oCost);
+  document.getElementById('scGap').textContent=gap.toFixed(1)+'%';
+  document.getElementById('scRatio').textContent=(gCost/oCost).toFixed(3)+'×';
+  drawRoute('scCG',scPts,scGR,'#E24B4A','rgba(226,75,74,0.12)',scGR.length);
+  drawRoute('scCO',scPts,scOP,'#3B6D11','rgba(59,109,17,0.12)',scOP.length);
+  document.getElementById('scStatus').textContent='Routes computed — click "Animate routes" to replay';
+}
+
+function scAnimate(){
+  stopAnims();
+  document.getElementById('scRun').disabled=true;
+  drawRoute('scCG',scPts,scGR,'#E24B4A','rgba(226,75,74,0.12)',0);
+  drawRoute('scCO',scPts,scOP,'#3B6D11','rgba(59,109,17,0.12)',0);
+  let sG=0;
+  document.getElementById('scStatus').textContent='Animating greedy...';
+  scAnimG=setInterval(()=>{
+    sG++; drawRoute('scCG',scPts,scGR,'#E24B4A','rgba(226,75,74,0.12)',sG);
+    if(sG>=scGR.length){clearInterval(scAnimG);document.getElementById('scStatus').textContent='Greedy done — animating optimized...';
+      let sO=0;setTimeout(()=>{scAnimO=setInterval(()=>{sO++;drawRoute('scCO',scPts,scOP,'#3B6D11','rgba(59,109,17,0.12)',sO);if(sO>=scOP.length){clearInterval(scAnimO);const gap=((routeCost(scPts,scGR)-routeCost(scPts,scOP))/routeCost(scPts,scGR)*100);document.getElementById('scStatus').textContent=`Done — ${scActive.name}: ${gap<1?'gap ~0% (sanity check passed)':gap.toFixed(1)+'% saved by optimizing'}`;document.getElementById('scRun').disabled=false;}},200);},350);}
+  },200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB 4: HELD-KARP EXPLAINER
+// ═══════════════════════════════════════════════════════════
+const HK_PTS=[[110,80],[200,40],[240,160],[80,170]];
+const HK_NAMES=['Depot','Stop A','Stop B','Stop C'];
+const HK_COLORS=['#185FA5','#E24B4A','#3B6D11','#854F0B'];
+const HK_D=(i,j)=>Math.round(dist(HK_PTS[i],HK_PTS[j]));
+
+const HK_DP={}, HK_PAR={};
+(function buildHKDP(){
+  for(let i=1;i<4;i++){const S=(1)|(1<<i);HK_DP[`${S},${i}`]=HK_D(0,i);HK_PAR[`${S},${i}`]=0;}
+  for(let sz=3;sz<=4;sz++) for(let S=0;S<16;S++){
+    if(popcount(S)!==sz||!(S&1)) continue;
+    for(let i=1;i<4;i++){if(!(S&(1<<i)))continue;const Sp=S^(1<<i);let best=Infinity,bp=-1;
+      for(let j=0;j<4;j++){if(j===i||!(Sp&(1<<j)))continue;const v=(HK_DP[`${Sp},${j}`]??Infinity)+HK_D(j,i);if(v<best){best=v;bp=j;}}
+      HK_DP[`${S},${i}`]=best;HK_PAR[`${S},${i}`]=bp;}
+  }
+})();
+let hkBestEnd=-1,hkBestCost=Infinity;
+for(let i=1;i<4;i++){const c=(HK_DP[`${15},${i}`]??Infinity)+HK_D(i,0);if(c<hkBestCost){hkBestCost=c;hkBestEnd=i;}}
+const hkOptRoute=(()=>{const r=[];let S=15,cur=hkBestEnd;while(cur!==0){r.push(cur);const p=HK_PAR[`${S},${cur}`];S^=(1<<cur);cur=p;}r.push(0);r.reverse();return r;})();
+
+const HK_STEPS=[
+  {phase:0,
+   explain:`<b>The problem:</b> find the shortest round-trip from the Depot visiting every stop exactly once. With 4 stops there are only 6 possible routes — manageable. But with 15 stops it is 87 billion. Held-Karp solves this smarter by asking: <em>"What is the cheapest way to reach stop X, having visited exactly this set of stops so far?"</em>`,
+   hl:{}, route:[]},
+  {phase:1,
+   explain:`<b>Base cases — one hop from Depot.</b> The simplest subproblem: travel directly from Depot to each stop. No choices yet. These seed the DP table. <code>dp[{Depot,A},A] = dist(Depot→A) = ${HK_D(0,1)}</code>`,
+   hl:{'1,1':true,'1,2':true,'1,3':true}, route:[0,1]},
+  {phase:1,
+   explain:`<b>Direct to Stop B.</b> <code>dp[{Depot,B},B] = dist(Depot→B) = ${HK_D(0,2)}</code>`,
+   hl:{'1,1':true,'1,2':true,'1,3':true}, route:[0,2]},
+  {phase:1,
+   explain:`<b>Direct to Stop C.</b> <code>dp[{Depot,C},C] = dist(Depot→C) = ${HK_D(0,3)}</code>. All base cases filled. DP can now build on top of these.`,
+   hl:{'1,1':true,'1,2':true,'1,3':true}, route:[0,3]},
+  {phase:2,
+   explain:`<b>Subset of 3 — {Depot,A,B}, ending at B.</b> One option: Depot→A→B. <code>dp[{D,A,B},B] = dp[{D,A},A] + dist(A→B) = ${HK_D(0,1)}+${HK_D(1,2)} = ${HK_D(0,1)+HK_D(1,2)}</code>`,
+   hl:{'3,2':true}, route:[0,1,2]},
+  {phase:2,
+   explain:`<b>Subset {Depot,A,B}, ending at A.</b> Must go through B first: Depot→B→A. <code>dp[{D,A,B},A] = dp[{D,B},B] + dist(B→A) = ${HK_D(0,2)}+${HK_D(2,1)} = ${HK_D(0,2)+HK_D(2,1)}</code>`,
+   hl:{'3,1':true}, route:[0,2,1]},
+  {phase:2,
+   explain:`<b>Other 3-node subsets</b> — {D,A,C} and {D,B,C} — are filled the same way, each reusing already-computed base cases. No redundant work. The DP table grows from bottom up.`,
+   hl:{'5,1':true,'5,3':true,'9,2':true,'9,3':true}, route:[0,1,3]},
+  {phase:3,
+   explain:`<b>Full set — finding the best last stop.</b> Now visit ALL stops. We check every possible second-to-last node and pick the cheapest combination that lets us return to Depot. <code>dp[all,i] = min over j of dp[all\\{i},j] + dist(j→i)</code>`,
+   hl:{'15,1':true,'15,2':true,'15,3':true}, route:[0,2,3,1]},
+  {phase:4,
+   explain:`<b>Optimal route found!</b> Tracing back through parent pointers gives the exact optimal tour. Cost: <b>${Math.round(hkBestCost)} units</b>. Held-Karp guarantees this is the true shortest route — not an approximation. <code>Route: ${hkOptRoute.map(i=>HK_NAMES[i]).join(' → ')} → ${HK_NAMES[hkOptRoute[0]]}</code>`,
+   hl:{'15,1':true,'15,2':true,'15,3':true}, route:hkOptRoute, isOpt:true},
+];
+const HK_PHASES=['Intro','Base cases','Subsets of 3','Full route','Optimal path'];
+const HK_ROWS=[
+  {k:'1,1',lbl:'{D,A}→A',rev:1},{k:'1,2',lbl:'{D,B}→B',rev:2},{k:'1,3',lbl:'{D,C}→C',rev:3},
+  {k:'3,1',lbl:'{D,A,B}→A',rev:5},{k:'3,2',lbl:'{D,A,B}→B',rev:4},
+  {k:'5,1',lbl:'{D,A,C}→A',rev:6},{k:'5,3',lbl:'{D,A,C}→C',rev:6},
+  {k:'9,2',lbl:'{D,B,C}→B',rev:6},{k:'9,3',lbl:'{D,B,C}→C',rev:6},
+  {k:'15,1',lbl:'{all}→A',rev:7},{k:'15,2',lbl:'{all}→B',rev:7},{k:'15,3',lbl:'{all}→C',rev:7},
+];
+const HK_TRUE={
+  '1,1':HK_D(0,1),'1,2':HK_D(0,2),'1,3':HK_D(0,3),
+  '3,1':HK_DP['3,1'],'3,2':HK_DP['3,2'],
+  '5,1':HK_DP['5,1'],'5,3':HK_DP['5,3'],
+  '9,2':HK_DP['9,2'],'9,3':HK_DP['9,3'],
+  '15,1':HK_DP['15,1'],'15,2':HK_DP['15,2'],'15,3':HK_DP['15,3'],
+};
+let hkCur=0;
+
+function renderHK(){
+  const s=HK_STEPS[hkCur];
+  document.getElementById('hkExplain').innerHTML=s.explain;
+  document.getElementById('hkPills').innerHTML=HK_PHASES.map((p,i)=>`<span class="pill ${i===s.phase?'active':i<s.phase?'done':''}">${p}</span>`).join('');
+  document.getElementById('hkCtr').textContent=`Step ${hkCur+1} of ${HK_STEPS.length}`;
+  document.getElementById('hkPrev').disabled=hkCur===0;
+  document.getElementById('hkNext').disabled=hkCur===HK_STEPS.length-1;
+  document.getElementById('hkNext').textContent=hkCur===HK_STEPS.length-2?'See result':'Next step';
+  // Table
+  const rows=HK_ROWS.map(r=>{
+    const revealed=r.rev<=hkCur, active=s.hl[r.k];
+    const isBest=hkCur>=7&&r.k.startsWith('15')&&(HK_TRUE[r.k]+HK_D(parseInt(r.k.split(',')[1]),0))===Math.round(hkBestCost);
+    const cls=active?'active':(revealed?(isBest?'best':'revealed'):'');
+    return `<tr><td class="lbl">${r.lbl}</td><td class="${cls}">${revealed?HK_TRUE[r.k]??'—':'—'}</td></tr>`;
+  }).join('');
+  document.getElementById('hkTable').innerHTML=`<thead><tr><th style="text-align:left">subproblem</th><th>cost</th></tr></thead><tbody>${rows}</tbody>`;
+  // Map
+  const {ctx,W,H}=setupCanvas('hkMap');
+  const scaleX=W/300, scaleY=H/230;
+  const p=(pt)=>({x:pt[0]*scaleX+10, y:pt[1]*scaleY+20});
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<4;i++) for(let j=i+1;j<4;j++){
+    const a=p(HK_PTS[i]),b=p(HK_PTS[j]);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle='rgba(0,0,0,0.07)';ctx.lineWidth=0.5;ctx.stroke();
+    const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+    ctx.fillStyle='#888780';ctx.font='9px monospace';ctx.textAlign='center';
+    ctx.fillText(HK_D(i,j),mx,my-4);
+  }
+  const route=s.route, isOpt=s.isOpt;
+  if(route&&route.length>1){
+    for(let k=0;k<route.length-1;k++){
+      const a=p(HK_PTS[route[k]]),b=p(HK_PTS[route[k+1]]);
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+      ctx.strokeStyle=isOpt?'#3B6D11':'#185FA5';ctx.lineWidth=2.5;ctx.stroke();
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,ang=Math.atan2(b.y-a.y,b.x-a.x);
+      ctx.save();ctx.translate(mx,my);ctx.rotate(ang);ctx.beginPath();ctx.moveTo(-4,-3);ctx.lineTo(4,0);ctx.lineTo(-4,3);ctx.fillStyle=isOpt?'#3B6D11':'#185FA5';ctx.fill();ctx.restore();
+    }
+  }
+  HK_PTS.forEach((pt,i)=>{
+    const {x,y}=p(pt);
+    ctx.beginPath();ctx.arc(x,y,i===0?10:8,0,Math.PI*2);
+    ctx.fillStyle=HK_COLORS[i]+'22';ctx.fill();
+    ctx.strokeStyle=HK_COLORS[i];ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=HK_COLORS[i];ctx.font=`600 ${i===0?10:9}px monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(i===0?'D':String.fromCharCode(64+i),x,y);
+    ctx.fillStyle='#5F5E5A';ctx.font='9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(HK_NAMES[i],x,y+(i===0?16:14));ctx.textBaseline='alphabetic';
+  });
+}
+
+function hkStep(dir){hkCur=Math.max(0,Math.min(HK_STEPS.length-1,hkCur+dir));renderHK();}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('load',()=>{
+  setTimeout(()=>{initDemo();scGenerate();renderHK();drawSimChart();},80);
+});
+window.addEventListener('resize',()=>{
+  drawRoute('cG',demoPts,demoGR,'#E24B4A','rgba(226,75,74,0.12)',demoGR.length);
+  drawRoute('cHK',demoPts,demoHK,'#3B6D11','rgba(59,109,17,0.12)',demoHK.length);
+  drawSimChart();
+});
+</script>
+</body>
+</html>
