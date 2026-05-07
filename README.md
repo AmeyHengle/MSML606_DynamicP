@@ -1,6 +1,5 @@
 # Amazon Last-Mile Delivery Route Optimizer
 
-**MSML606 – Dynamic Programming, Extra Credit Project 2 | Spring 2026**
 **Author: Amey Hengle**
 
 ---
