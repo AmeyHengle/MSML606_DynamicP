@@ -1,21 +1,19 @@
 """
 algorithms.py
 =============
-Core routing algorithms for the Amazon Last-Mile Delivery Optimizer.
+routing algorithms for the amazon last-mile delivery optimizer.
 
-Three algorithms are implemented, ordered from least to most sophisticated:
+algorithms implemented (weakest to strongest):
+  1. random permutation       -- absolute baseline
+  2. greedy nearest neighbor  -- o(n^2), intuitive but locally optimal only
+  3. 2-opt local search       -- o(n^2) per pass, fixes edge crossings
+  4. or-opt                   -- o(k*n^2) per pass, fixes insertion order
+  5. held-karp dp             -- exact, o(2^n * n^2), feasible up to n~15
 
-  1. Greedy (Nearest Neighbor) -- intuitive but suboptimal
-  2. 2-opt Local Search         -- heuristic improvement, scalable
-  3. Held-Karp DP               -- exact optimal solution, O(2^n * n^2)
+all algorithms accept a list of (x, y) coordinate tuples and a starting
+index (default 0, the depot), and return (route, cost).
 
-All algorithms accept a list of (x, y) coordinate tuples and a starting
-index (default 0, the depot), and return:
-  - route  : list of node indices in visit order, ending back at start
-  - cost   : total Euclidean distance of that route
-
-Author: Amey Hengle
-Course: MSML606, Spring 2026
+author: amey hengle | msml606, spring 2026
 """
 
 import math
@@ -23,42 +21,13 @@ import time
 from itertools import combinations
 
 
-# ---------------------------------------------------------------------------
-# Shared utility: Euclidean distance between two points
-# ---------------------------------------------------------------------------
-
 def euclidean(p1, p2):
-    """
-    Compute straight-line distance between two 2D points.
-
-    Parameters
-    ----------
-    p1 : tuple (x, y)
-    p2 : tuple (x, y)
-
-    Returns
-    -------
-    float : Euclidean distance
-    """
+    """straight-line distance between two 2d points."""
     return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
 
 def build_distance_matrix(points):
-    """
-    Pre-compute all pairwise distances into an n x n matrix.
-
-    Pre-computing avoids redundant sqrt calls during route evaluation,
-    which matters when the same edge is queried thousands of times in
-    the DP table.
-
-    Parameters
-    ----------
-    points : list of (x, y) tuples
-
-    Returns
-    -------
-    dist : list of lists, dist[i][j] = Euclidean distance from i to j
-    """
+    """precompute all pairwise euclidean distances into an n x n matrix."""
     n = len(points)
     dist = [[0.0] * n for _ in range(n)]
     for i in range(n):
@@ -69,18 +38,7 @@ def build_distance_matrix(points):
 
 
 def route_cost(route, dist):
-    """
-    Sum all edge weights along a complete route (including return to start).
-
-    Parameters
-    ----------
-    route : list of node indices (does NOT need to repeat start at end)
-    dist  : precomputed distance matrix
-
-    Returns
-    -------
-    float : total route distance
-    """
+    """sum all edge weights along a route including the return to start."""
     total = 0.0
     n = len(route)
     for i in range(n):
@@ -88,89 +46,58 @@ def route_cost(route, dist):
     return total
 
 
-# ---------------------------------------------------------------------------
-# Algorithm 1: Greedy Nearest Neighbor
-# ---------------------------------------------------------------------------
+def random_route(points, start=0, seed=None):
+    """
+    visit stops in a random order. serves as the absolute baseline to show
+    how much worse an unguided approach is compared to any algorithm.
+    """
+    import random as _random
+    if seed is not None:
+        _random.seed(seed)
+    dist = build_distance_matrix(points)
+    n = len(points)
+    others = list(range(n))
+    others.remove(start)
+    _random.shuffle(others)
+    route = [start] + others
+    return route, route_cost(route, dist)
+
 
 def greedy_nearest_neighbor(points, start=0):
     """
-    Greedy nearest-neighbor heuristic for TSP.
-
-    Strategy: from the current location, always travel to the closest
-    unvisited stop. Simple and fast (O(n^2)), but makes locally optimal
-    choices that can be globally poor -- especially with clustered layouts
-    where it exhausts a cluster then makes an expensive cross-cluster jump.
-
-    Parameters
-    ----------
-    points : list of (x, y) tuples, points[0] is the depot by convention
-    start  : int, index of the starting node (depot)
-
-    Returns
-    -------
-    route : list of node indices, full round-trip
-    cost  : float, total travel distance
+    from the current stop, always travel to the closest unvisited stop.
+    runs in o(n^2). fast but makes locally optimal decisions that can be
+    globally poor, especially with clustered stop layouts.
     """
     n = len(points)
     dist = build_distance_matrix(points)
-
     visited = [False] * n
     route = [start]
     visited[start] = True
 
     for _ in range(n - 1):
         current = route[-1]
-        nearest = None
-        nearest_dist = float("inf")
-
+        nearest, nearest_dist = None, float("inf")
         for j in range(n):
             if not visited[j] and dist[current][j] < nearest_dist:
                 nearest_dist = dist[current][j]
                 nearest = j
-
         route.append(nearest)
         visited[nearest] = True
 
-    cost = route_cost(route, dist)
-    return route, cost
+    return route, route_cost(route, dist)
 
-
-# ---------------------------------------------------------------------------
-# Algorithm 2: 2-opt Local Search
-# ---------------------------------------------------------------------------
 
 def two_opt(points, initial_route=None, start=0, max_iterations=None):
     """
-    2-opt local search improvement for TSP.
-
-    Starting from an initial route (defaults to greedy if not provided),
-    repeatedly checks every pair of edges (i, i+1) and (j, j+1). If
-    reversing the segment between them reduces total distance, that reversal
-    is applied. Repeats until no improvement is found.
-
-    Key insight: 2-opt fixes route crossings. Any time two edges cross on a
-    map, reversing the middle segment removes the crossing and shortens the
-    route. It cannot fix globally wrong orderings -- only local crossings.
-
-    Time complexity: O(n^2) per pass, multiple passes until convergence.
-    Practical for n up to ~200 nodes.
-
-    Parameters
-    ----------
-    points        : list of (x, y) tuples
-    initial_route : list of node indices to start from (optional)
-    start         : depot index (used if initial_route not provided)
-    max_iterations: cap on improvement passes (None = run to convergence)
-
-    Returns
-    -------
-    route : improved list of node indices
-    cost  : float, improved total distance
+    iteratively reverse segments of the route to remove edge crossings.
+    any time two route edges cross on a map, reversing the segment between
+    the crossing points shortens the total route. repeats until no improving
+    swap exists. o(n^2) per pass, multiple passes until convergence.
+    defaults to using the greedy route as its starting point.
     """
-    n = len(points)
     dist = build_distance_matrix(points)
 
-    # Use greedy route as starting point if none provided
     if initial_route is None:
         route, _ = greedy_nearest_neighbor(points, start)
     else:
@@ -187,128 +114,124 @@ def two_opt(points, initial_route=None, start=0, max_iterations=None):
 
         for i in range(len(route) - 1):
             for j in range(i + 2, len(route)):
-                # Skip the wrap-around edge (last node back to first)
                 if i == 0 and j == len(route) - 1:
                     continue
-
-                # Edge weights before reversal
                 a, b = route[i], route[i + 1]
                 c, d = route[j], route[(j + 1) % len(route)]
-                before = dist[a][b] + dist[c][d]
-
-                # Edge weights after reversing the segment [i+1 .. j]
-                after = dist[a][c] + dist[b][d]
-
-                if after < before - 1e-10:
-                    # Reverse the segment between i+1 and j (inclusive)
+                if dist[a][c] + dist[b][d] < dist[a][b] + dist[c][d] - 1e-10:
                     route[i + 1:j + 1] = route[i + 1:j + 1][::-1]
                     improved = True
 
-    cost = route_cost(route, dist)
-    return route, cost
+    return route, route_cost(route, dist)
 
 
-# ---------------------------------------------------------------------------
-# Algorithm 3: Held-Karp Dynamic Programming (Exact TSP)
-# ---------------------------------------------------------------------------
+def or_opt(points, initial_route=None, start=0, segment_sizes=(1, 2, 3)):
+    """
+    remove a segment of 1, 2, or 3 consecutive stops and reinsert it at the
+    best position elsewhere in the route. fixes cases that 2-opt misses:
+    stops that are in the wrong position but whose edges do not cross.
+    o(k * n^2) per pass where k = number of segment sizes tried.
+    warm-started from the 2-opt result for incremental improvement.
+    """
+    dist = build_distance_matrix(points)
+
+    if initial_route is None:
+        route, _ = greedy_nearest_neighbor(points, start)
+    else:
+        route = list(initial_route)
+
+    improved = True
+    while improved:
+        improved = False
+
+        for k in segment_sizes:
+            i = 1
+            while i < len(route) - k + 1:
+                segment = route[i:i + k]
+                skeleton = route[:i] + route[i + k:]
+
+                removal_gain = (
+                    dist[route[i - 1]][segment[0]]
+                    + dist[segment[-1]][route[i + k] if i + k < len(route) else route[0]]
+                    - dist[route[i - 1]][route[i + k] if i + k < len(route) else route[0]]
+                )
+
+                best_gain, best_j = 0, -1
+
+                for j in range(len(skeleton)):
+                    if j == i - 1 or j == i - 2:
+                        continue
+                    a = skeleton[j]
+                    b = skeleton[(j + 1) % len(skeleton)]
+                    insertion_cost = dist[a][segment[0]] + dist[segment[-1]][b] - dist[a][b]
+                    gain = removal_gain - insertion_cost
+                    if gain > best_gain + 1e-10:
+                        best_gain = gain
+                        best_j = j
+
+                if best_j != -1:
+                    route = skeleton[:best_j + 1] + segment + skeleton[best_j + 1:]
+                    improved = True
+                    break
+                else:
+                    i += 1
+
+            if improved:
+                break
+
+    return route, route_cost(route, dist)
+
 
 def held_karp(points, start=0):
     """
-    Held-Karp exact dynamic programming solution to TSP.
+    exact dp solution to tsp using the held-karp algorithm.
 
-    This is the core DP algorithm for this project. It solves TSP optimally
-    by decomposing the problem into overlapping subproblems:
+    defines dp[s][i] = minimum cost to travel from the depot, visit exactly
+    the set s of stops, and end at stop i. fills the table bottom-up from
+    single-hop base cases to the full route, then reconstructs the optimal
+    path via parent pointers.
 
-      dp[S][i] = minimum distance to travel from the depot, visit exactly
-                 the set of nodes S, and end at node i (where i in S).
-
-    The recurrence is:
-      dp[S][i] = min over all j in S\{i} of:
-                    dp[S \ {i}][j] + dist[j][i]
-
-    Base cases (single-hop from depot):
-      dp[{depot, i}][i] = dist[depot][i]  for all i != depot
-
-    After filling the table, the optimal tour cost is:
-      min over all i != depot of:  dp[all_nodes][i] + dist[i][depot]
-
-    Route reconstruction uses a parent pointer table stored alongside dp.
-
-    Time complexity:  O(2^n * n^2)
-    Space complexity: O(2^n * n)
-
-    Practical limit: n <= 20 nodes (n=15 runs in milliseconds in Python).
-
-    Parameters
-    ----------
-    points : list of (x, y) tuples, points[start] is the depot
-    start  : int, depot index (default 0)
-
-    Returns
-    -------
-    route : list of node indices, optimal round-trip starting and ending
-            at the depot (depot is NOT repeated at the end)
-    cost  : float, optimal total distance
+    time: o(2^n * n^2), space: o(2^n * n).
+    exact and optimal, but infeasible beyond n ~ 20 nodes.
     """
     n = len(points)
     dist = build_distance_matrix(points)
 
-    # Remap so depot is always node 0 internally for bitmask simplicity
-    # (We restore original indices at the end)
     nodes = list(range(n))
     if start != 0:
         nodes[0], nodes[start] = nodes[start], nodes[0]
 
-    # dp[(S_bitmask, i)] = min cost to reach node i having visited set S
-    # S is represented as an integer bitmask over the n nodes.
-    # Bit k is set if node k has been visited.
     dp = {}
-    parent = {}  # For route reconstruction
+    parent = {}
 
-    # Base cases: travel directly from depot (node 0) to each other node
     depot = 0
     for i in range(1, n):
-        S = (1 << depot) | (1 << i)  # visited = {depot, i}
+        S = (1 << depot) | (1 << i)
         dp[(S, i)] = dist[nodes[depot]][nodes[i]]
         parent[(S, i)] = depot
 
-    # Fill DP table for subsets of increasing size
-    # We iterate over subset sizes from 3 up to n
     for size in range(3, n + 1):
-        # Generate all subsets of {0..n-1} of this size that include the depot
         for S in _subsets_of_size(n, size, must_include=depot):
-            # For each possible endpoint i in this subset (not the depot)
             for i in range(n):
                 if i == depot or not (S & (1 << i)):
                     continue
-
-                # Remove i from the subset to get the "previous" subset
                 S_prev = S ^ (1 << i)
-
-                best_cost = float("inf")
-                best_prev = -1
-
-                # Try every possible previous stop j in S_prev (not depot endpoint)
+                best_cost, best_prev = float("inf"), -1
                 for j in range(n):
                     if j == i or not (S_prev & (1 << j)):
                         continue
                     if (S_prev, j) not in dp:
                         continue
-
                     candidate = dp[(S_prev, j)] + dist[nodes[j]][nodes[i]]
                     if candidate < best_cost:
                         best_cost = candidate
                         best_prev = j
-
                 if best_prev != -1:
                     dp[(S, i)] = best_cost
                     parent[(S, i)] = best_prev
 
-    # Find the optimal last stop before returning to depot
-    full_set = (1 << n) - 1  # bitmask with all nodes visited
-    best_cost = float("inf")
-    best_last = -1
-
+    full_set = (1 << n) - 1
+    best_cost, best_last = float("inf"), -1
     for i in range(1, n):
         if (full_set, i) not in dp:
             continue
@@ -317,25 +240,14 @@ def held_karp(points, start=0):
             best_cost = total
             best_last = i
 
-    # Reconstruct the optimal route by tracing parent pointers
     route_internal = _reconstruct_route(parent, full_set, best_last, depot, n)
-
-    # Map internal indices back to original node indices
     route = [nodes[i] for i in route_internal]
-
     return route, best_cost
 
 
 def _subsets_of_size(n, size, must_include):
-    """
-    Generate all bitmasks representing subsets of {0..n-1} of a given size
-    that include a required node (must_include).
-
-    Uses itertools.combinations for clarity.
-    """
-    all_nodes = list(range(n))
-    remaining = [x for x in all_nodes if x != must_include]
-
+    """generate all bitmasks of size `size` over {0..n-1} that include must_include."""
+    remaining = [x for x in range(n) if x != must_include]
     for combo in combinations(remaining, size - 1):
         S = 1 << must_include
         for node in combo:
@@ -344,92 +256,56 @@ def _subsets_of_size(n, size, must_include):
 
 
 def _reconstruct_route(parent, S, last, depot, n):
-    """
-    Trace parent pointers from the full set back to the depot
-    to reconstruct the optimal route in forward order.
-
-    Parameters
-    ----------
-    parent : dict mapping (S, i) -> previous node j
-    S      : final bitmask (all nodes visited)
-    last   : last node visited before returning to depot
-    depot  : depot node index (0)
-    n      : total number of nodes
-
-    Returns
-    -------
-    list of node indices from depot to last (depot not repeated at end)
-    """
+    """trace parent pointers from the full set back to depot to recover the route."""
     route = []
-    current = last
-    current_S = S
-
+    current, current_S = last, S
     while current != depot:
         route.append(current)
         prev = parent[(current_S, current)]
         current_S = current_S ^ (1 << current)
         current = prev
-
     route.append(depot)
     route.reverse()
     return route
 
 
-# ---------------------------------------------------------------------------
-# Comparison utility: run all three algorithms and report results
-# ---------------------------------------------------------------------------
-
-def compare_all(points, start=0):
+def compare_all(points, start=0, include_random=True, held_karp_limit=15):
     """
-    Run greedy, 2-opt, and Held-Karp on the same set of points
-    and return a summary dictionary for easy comparison.
-
-    Parameters
-    ----------
-    points : list of (x, y) tuples
-    start  : depot index
-
-    Returns
-    -------
-    dict with keys: greedy, two_opt, held_karp
-    Each value is a dict with: route, cost, time_ms
+    run all five algorithms on the same point set and return a results dict.
+    held-karp is only run when n <= held_karp_limit to avoid infeasible runtimes.
+    each entry has keys: route, cost, time_ms.
     """
     n = len(points)
     results = {}
 
-    # Greedy
+    if include_random:
+        t0 = time.perf_counter()
+        r_route, r_cost = random_route(points, start)
+        results["random"] = {"route": r_route, "cost": round(r_cost, 4),
+                             "time_ms": round((time.perf_counter() - t0) * 1000, 3)}
+
     t0 = time.perf_counter()
     g_route, g_cost = greedy_nearest_neighbor(points, start)
-    results["greedy"] = {
-        "route": g_route,
-        "cost": round(g_cost, 4),
-        "time_ms": round((time.perf_counter() - t0) * 1000, 3),
-    }
+    results["greedy"] = {"route": g_route, "cost": round(g_cost, 4),
+                         "time_ms": round((time.perf_counter() - t0) * 1000, 3)}
 
-    # 2-opt (starts from greedy route)
     t0 = time.perf_counter()
     o_route, o_cost = two_opt(points, initial_route=g_route, start=start)
-    results["two_opt"] = {
-        "route": o_route,
-        "cost": round(o_cost, 4),
-        "time_ms": round((time.perf_counter() - t0) * 1000, 3),
-    }
+    results["two_opt"] = {"route": o_route, "cost": round(o_cost, 4),
+                          "time_ms": round((time.perf_counter() - t0) * 1000, 3)}
 
-    # Held-Karp (only run for small n to keep it practical)
-    if n <= 20:
+    t0 = time.perf_counter()
+    oo_route, oo_cost = or_opt(points, initial_route=o_route, start=start)
+    results["or_opt"] = {"route": oo_route, "cost": round(oo_cost, 4),
+                         "time_ms": round((time.perf_counter() - t0) * 1000, 3)}
+
+    if n <= held_karp_limit:
         t0 = time.perf_counter()
         hk_route, hk_cost = held_karp(points, start)
-        results["held_karp"] = {
-            "route": hk_route,
-            "cost": round(hk_cost, 4),
-            "time_ms": round((time.perf_counter() - t0) * 1000, 3),
-        }
+        results["held_karp"] = {"route": hk_route, "cost": round(hk_cost, 4),
+                                "time_ms": round((time.perf_counter() - t0) * 1000, 3)}
     else:
-        results["held_karp"] = {
-            "route": None,
-            "cost": None,
-            "time_ms": None,
-            "note": f"Skipped: n={n} exceeds safe limit for exact DP (n<=20)",
-        }
+        results["held_karp"] = {"route": None, "cost": None, "time_ms": None,
+                                "note": f"skipped: n={n} > held_karp_limit={held_karp_limit}"}
 
     return results
